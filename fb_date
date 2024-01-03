@@ -1,0 +1,163 @@
+CREATE OR ALTER FUNCTION fn.DateTable
+    (
+        @StartDate date ,
+        @EndDate date
+   )
+RETURNS @dateTable TABLE
+    (
+        [Date_key] [date] NULL,
+        [Date] [date] NULL,
+        [FirstDateInMonth] [date] NULL,
+        [LastDateInMonth] [date] NULL,
+        [FirstDateInQuarter] [date] NULL,
+        [LastDateInQuarter] [date] NULL,
+        [FirstDateInWeek] [date] NULL,
+        [LastDateInWeek] [date] NULL,
+        [Week] [int] NULL,
+        [ISOWeek] [int] NULL,
+        [Year] [int] NULL,
+        [ISOYear] [int] NULL,
+        [Quarter] [int] NULL,
+        [Month] [int] NULL,
+        [DayOfYear] [int] NULL,
+        [DayOfWeek] [int] NULL,
+        [DayOfMonth] [int] NULL,
+        [YearWeek] [int] NULL,
+        [ISOYearISOWeek] [int] NULL,
+        [YearMonth] [int] NULL,
+        [YearQuarter] [int] NULL,
+        [WeekdayName] [nvarchar](30) NULL,
+        [MonthName] [nvarchar](30) NULL,
+        [MonthShortName] [nvarchar](3) NULL,
+        [MonthYearName] [nvarchar](35) NULL,
+        [MonthShortYearName] [nvarchar](8) NULL,
+        [WeekYearName] [varchar](8) NULL,
+        [ISOWeekISOYearName] [varchar](8) NULL,
+        [QuarterYearName] [varchar](8) NULL,
+        [IsWorkday] [varchar](7) NOT NULL,
+        [IsUntilToday] [int] NOT NULL,
+        [IsBeforeToday] [int] NOT NULL,
+        [PassedDays] [int] NULL,
+        [PassedYears] [int] NULL,
+        [PassedMonths] [int] NULL,
+        [PassedQuarters] [int] NULL,
+        [PassedWeeks] [int] NULL,
+        [DayDynamic] [varchar](10) NULL,
+        [WeekDynamic] [varchar](34) NULL,
+        [MonthDynamic] [nvarchar](10) NULL,
+        [YearDynamic] [varchar](9) NULL,
+        [SYS_INSERTED_DATE] [datetime] NOT NULL,
+        [SYS_UPDATED_DATE] [datetime] NOT NULL
+   )
+
+AS
+
+BEGIN
+
+	WITH cte_dateList AS (
+		SELECT cast(@StartDate AS date) AS DateValue
+		UNION ALL
+		SELECT DATEADD(DAY, 1, DateValue)
+		FROM cte_dateList
+		WHERE DateValue < @EndDate
+	)
+    INSERT INTO @dateTable 
+        SELECT
+            cast(dl.DateValue AS date) AS Date_key,
+            /* Dates */
+            cast(dl.DateValue AS date) AS Date,
+            DATEFROMPARTS(YEAR(dl.DateValue), MONTH(dl.DateValue), 1) AS FirstDateInMonth,
+            DATEADD(DAY, -1 * (DATEPART(DAY, dl.DateValue) - 1), DATEADD(MONTH, 1, dl.DateValue)) AS LastDateInMonth,
+            CASE 
+                WHEN DATEPART(QUARTER, dl.DateValue) = 1 THEN DATEFROMPARTS(YEAR(dl.DateValue), 1, 1)
+                WHEN DATEPART(QUARTER, dl.DateValue) = 2 THEN DATEFROMPARTS(YEAR(dl.DateValue), 4, 1)
+                WHEN DATEPART(QUARTER, dl.DateValue) = 3 THEN DATEFROMPARTS(YEAR(dl.DateValue), 7, 1)
+                ELSE DATEFROMPARTS(YEAR(dl.DateValue), 10, 1)
+            END AS FirstDateInQuarter,
+            CASE 
+                WHEN DATEPART(QUARTER, dl.DateValue) = 1 THEN DATEFROMPARTS(YEAR(dl.DateValue), 3, 31)
+                WHEN DATEPART(QUARTER, dl.DateValue) = 2 THEN DATEFROMPARTS(YEAR(dl.DateValue), 6, 30)
+                WHEN DATEPART(QUARTER, dl.DateValue) = 3 THEN DATEFROMPARTS(YEAR(dl.DateValue), 9, 30)
+                ELSE DATEFROMPARTS(YEAR(dl.DateValue), 12, 31)
+            END AS LastDateInQuarter,
+            DATEADD(DAY, -CASE WHEN DATEPART(DW, dl.DateValue) = 1 THEN 6 ELSE DATEPART(DW, dl.DateValue) - 2 END, dl.DateValue) AS FirstDateInWeek,
+            DATEADD(DAY, 7 - CASE WHEN DATEPART(DW, dl.DateValue) = 1 THEN 7 ELSE DATEPART(DW, dl.DateValue) - 1 END, dl.DateValue) AS LastDateInWeek,
+            /* Date values */
+            CASE 
+                WHEN DATEPART(DW, dl.DateValue) = 1 THEN DATEPART(WEEK, dl.DateValue) - 1
+                ELSE DATEPART(WEEK, dl.DateValue)
+            END AS Week,
+            DATEPART(ISO_WEEK, dl.DateValue) AS ISOWeek,
+            DATEPART(YEAR, dl.DateValue) AS Year,
+            DATEPART(YEAR, DATEADD(DAY, 26 - DATEPART(ISO_WEEK, dl.DateValue), dl.DateValue)) AS ISOYear,
+            DATEPART(QUARTER, dl.DateValue) AS Quarter,
+            DATEPART(MONTH, dl.DateValue) AS Month,
+            DATEPART(DAYOFYEAR, dl.DateValue) AS DayOfYear,
+            CASE WHEN DATEPART(DW, dl.DateValue) = 1 THEN 7 ELSE DATEPART(DW, dl.DateValue) - 1 END AS DayOfWeek,
+            DATEPART(DAY, dl.DateValue) AS DayOfMonth,
+            CAST(CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4)) + RIGHT('0' + CAST(DATEPART(WEEK, dl.DateValue) AS VARCHAR(2)), 2) AS int) AS YearWeek,
+            CAST(CAST(DATEPART(YEAR, DATEADD(DAY, 26 - DATEPART(ISO_WEEK, dl.DateValue), dl.DateValue)) AS varchar) + RIGHT('0' + CAST(DATEPART(ISO_WEEK, dl.DateValue) AS VARCHAR(2)), 2) AS int) AS ISOYearISOWeek,
+            CAST(CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4)) + RIGHT('0' + CAST(DATEPART(MONTH, dl.DateValue) AS VARCHAR(2)), 2) AS int) AS YearMonth,
+            CAST(CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4)) + RIGHT('0' + CAST(DATEPART(QUARTER, dl.DateValue) AS VARCHAR(2)), 2) AS int) AS YearQuarter,
+            /* Date names */
+            DATENAME(WEEKDAY, dl.DateValue) AS WeekdayName,
+            DATENAME(MONTH, dl.DateValue) AS MonthName,
+            LEFT(DATENAME(MONTH, dl.DateValue), 3) AS MonthShortName,
+            DATENAME(MONTH, dl.DateValue) + ' ' + CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4)) AS MonthYearName,
+            LEFT(DATENAME(MONTH, dl.DateValue), 3) + ' ' + CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4)) AS MonthShortYearName,
+            'W' + RIGHT('0' + CAST(DATEPART(WEEK, dl.DateValue) AS VARCHAR(2)), 2) + ' ' + CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4)) AS WeekYearName,
+            'W' + RIGHT('0' + CAST(DATEPART(ISO_WEEK, dl.DateValue) AS VARCHAR(2)), 2) + ' ' + cast(DATEPART(YEAR, DATEADD(DAY, 26 - DATEPART(ISO_WEEK, dl.DateValue), dl.DateValue)) AS VARCHAR(4)) AS ISOWeekISOYearName,
+            'Q' + RIGHT('0' + CAST(DATEPART(QUARTER, dl.DateValue) AS VARCHAR(2)), 2) + ' ' + CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4)) AS QuarterYearName,
+            /* Date flags */
+            CASE
+                WHEN DATEPART(WEEKDAY, dl.DateValue) IN (6, 7) THEN 'Weekend'
+                ELSE 'Workday'
+            END AS IsWorkday,
+            CASE
+                WHEN dl.DateValue <= GETDATE() THEN 1
+                ELSE 0
+            END AS IsUntilToday,
+            CASE
+                WHEN dl.DateValue < GETDATE() THEN 1
+                ELSE 0
+            END AS IsBeforeToday,
+            /* Date calculations */
+            DATEDIFF(DAY, dl.DateValue, GETDATE()) AS PassedDays,
+            DATEPART(YEAR, GETDATE()) - DATEPART(YEAR, dl.DateValue) AS PassedYears,
+            DATEDIFF(MONTH, dl.DateValue, GETDATE()) + (DATEPART(MONTH, GETDATE()) - DATEPART(MONTH, dl.DateValue)) AS PassedMonths,
+            DATEDIFF(QUARTER, dl.DateValue, GETDATE()) + (DATEPART(QUARTER, GETDATE()) - DATEPART(QUARTER, dl.DateValue)) AS PassedQuarters,
+            DATEDIFF(WEEK, 
+                    DATEADD(DAY, -CASE WHEN DATEPART(DW, dl.DateValue) = 1 THEN 6 ELSE DATEPART(DW, dl.DateValue) - 2 END, dl.DateValue),
+                    DATEADD(DAY, -CASE WHEN DATEPART(DW, GETDATE()) = 1 THEN 6 ELSE DATEPART(DW, GETDATE()) - 2 END, GETDATE())
+                    ) AS PassedWeeks,
+            CASE
+                WHEN DATEDIFF(DAY, dl.DateValue, GETDATE()) = 0 THEN 'Today'
+                WHEN DATEDIFF(DAY, dl.DateValue, GETDATE()) = 1 THEN 'Yesterday'
+                WHEN DATEDIFF(DAY, dl.DateValue, GETDATE()) = -1 THEN 'Tomorrow'
+                ELSE CAST(dl.DateValue AS VARCHAR(10))
+            END AS DayDynamic,
+            CASE 
+                WHEN DATEPART(ISO_WEEK, dl.DateValue) = DATEPART(ISO_WEEK, GETDATE()) AND DATEPART(YEAR, DATEADD(DAY, 26 - DATEPART(ISO_WEEK, dl.DateValue), dl.DateValue)) = YEAR(GETDATE()) THEN 'This week'
+                WHEN DATEPART(ISO_WEEK, dl.DateValue) = DATEPART(ISO_WEEK, GETDATE()) - 1 AND DATEPART(YEAR, DATEADD(DAY, 26 - DATEPART(ISO_WEEK, dl.DateValue), dl.DateValue)) = YEAR(GETDATE()) THEN 'Last week'
+                WHEN DATEPART(ISO_WEEK, dl.DateValue) = DATEPART(ISO_WEEK, GETDATE()) + 1 AND DATEPART(YEAR, DATEADD(DAY, 26 - DATEPART(ISO_WEEK, dl.DateValue), dl.DateValue)) = YEAR(GETDATE()) THEN 'Next week'
+                ELSE 'W' + RIGHT('00' + CAST(DATEPART(ISO_WEEK, dl.DateValue) AS VARCHAR), 2) + ' ' + cast(DATEPART(YEAR, DATEADD(DAY, 26 - DATEPART(ISO_WEEK, dl.DateValue), dl.DateValue)) AS varchar)
+            END AS WeekDynamic,
+            CASE
+                WHEN DATEDIFF(MONTH, dl.DateValue, GETDATE()) = 0 THEN 'This month'
+                WHEN DATEDIFF(MONTH, dl.DateValue, GETDATE()) = 1 THEN 'Last month'
+                WHEN DATEDIFF(MONTH, dl.DateValue, GETDATE()) = -1 THEN 'Next month'
+                ELSE LEFT(DATENAME(MONTH, dl.DateValue), 3) + ' ' + CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4))
+            END AS MonthDynamic,
+            CASE
+                WHEN DATEPART(YEAR, GETDATE()) - DATEPART(YEAR, dl.DateValue) = 0 THEN 'This year'
+                WHEN DATEPART(YEAR, GETDATE()) - DATEPART(YEAR, dl.DateValue) = 1 THEN 'Last year'
+                WHEN DATEPART(YEAR, GETDATE()) - DATEPART(YEAR, dl.DateValue) = -1 THEN 'Next year'
+                ELSE CAST(DATEPART(YEAR, dl.DateValue) AS VARCHAR(4))
+            END AS YearDynamic,
+            SYS_INSERTED_DATE = GETDATE(),
+            SYS_UPDATED_DATE = GETDATE()
+        FROM cte_dateList dl
+
+    OPTION (MAXRECURSION 0);
+RETURN
+END
