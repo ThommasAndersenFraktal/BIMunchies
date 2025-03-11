@@ -1,0 +1,28 @@
+version: 2
+
+seeds:
+  - name: seed_delte_dimensjoner__oversettelse
+    description: "Manually translated date names and logic"
+    materialization: table
+    config:
+      delimiter: ","
+      full_refresh: true
+
+    columns:
+      - name: model_table
+        description: 'The table whose field values should be mapped.'
+
+      - name: model_field
+        description: 'The field whose values should be mapped.'
+
+      - name: modell_verdi_original
+        description: 'The value of the field in english'
+
+      - name: modell_verdi_oversatt
+        description: 'The value of the field translated to norwegian'
+
+    data_tests:
+      - unique : 
+          column_name : "model_field || '-' || model_value_original"
+      - not_null:
+          column_name : "model_field || '-' || model_value_original"
