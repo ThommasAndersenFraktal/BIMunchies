@@ -1,0 +1,39 @@
+model_table,model_field,model_value_original,model_value_translated
+dato_dimensjon,maaned_navn_kort,Jan,Jan
+dato_dimensjon,maaned_navn_kort,Feb,Feb
+dato_dimensjon,maaned_navn_kort,Mar,Mar
+dato_dimensjon,maaned_navn_kort,Apr,Apr
+dato_dimensjon,maaned_navn_kort,May,Mai
+dato_dimensjon,maaned_navn_kort,Jun,Jun
+dato_dimensjon,maaned_navn_kort,Jul,Jul
+dato_dimensjon,maaned_navn_kort,Aug,Aug
+dato_dimensjon,maaned_navn_kort,Sep,Sep
+dato_dimensjon,maaned_navn_kort,Oct,Okt
+dato_dimensjon,maaned_navn_kort,Nov,Nov
+dato_dimensjon,maaned_navn_kort,Dec,Des
+dato_dimensjon,maaned_navn_lang,January,Januar
+dato_dimensjon,maaned_navn_lang,February,Februar
+dato_dimensjon,maaned_navn_lang,March,Mars
+dato_dimensjon,maaned_navn_lang,April,April
+dato_dimensjon,maaned_navn_lang,May,Mai
+dato_dimensjon,maaned_navn_lang,June,Juni
+dato_dimensjon,maaned_navn_lang,July,Juli
+dato_dimensjon,maaned_navn_lang,August,August
+dato_dimensjon,maaned_navn_lang,September,September
+dato_dimensjon,maaned_navn_lang,October,Oktober
+dato_dimensjon,maaned_navn_lang,November,November
+dato_dimensjon,maaned_navn_lang,December,Desember
+dato_dimensjon,ukedag_navn,Mon,Man
+dato_dimensjon,ukedag_navn,Tue,Tir
+dato_dimensjon,ukedag_navn,Wed,Ons
+dato_dimensjon,ukedag_navn,Thu,Tor
+dato_dimensjon,ukedag_navn,Fri,Fre
+dato_dimensjon,ukedag_navn,Sat,Lør
+dato_dimensjon,ukedag_navn,Sun,Søn
+dato_dimensjon,aar_dynamisk,Forrige aar,Forrige_år
+dato_dimensjon,aar_dynamisk,Dette aar,Dette år
+dato_dimensjon,aar_dynamisk,Neste aar,Neste år
+dato_dimensjon,maaned_aar_dynamisk,Forrige maaned,Forrige måned
+dato_dimensjon,maaned_aar_dynamisk,Denne maaned,Denne måned
+dato_dimensjon,maaned_aar_dynamisk,Neste maaned,Neste måned
+dato_dimensjon,dag_dynamisk,I gaar,I går
