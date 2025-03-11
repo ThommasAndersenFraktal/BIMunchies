@@ -1,0 +1,207 @@
+version: 2
+
+models:
+  - name: dim_dato
+    description: "Generates a date dimension with translations from the seed_delte_dimensjoner__oversettelse seed."
+    columns:
+      - name: dato_id
+        description: "[PK] - Contains the value dato (e.g., 2023-01-01). The primary key of the table."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: dato
+        description: "Raw date value."
+        data_tests:
+          - not_null
+
+      - name: maaned_nummer
+        description: "Month number (1–12)."
+        data_tests:
+          - not_null
+          
+      - name: maaned_navn_kort
+        description: "Short month name, possibly translated."
+        data_tests:
+          - not_null
+          
+      - name: maaned_navn_lang
+        description: "Full month name, possibly translated."
+        data_tests:
+          - not_null
+          
+      - name: maaned_start_dato
+        description: "First day of the month."
+        data_tests:
+          - not_null
+          
+      - name: maaned_slutt_dato
+        description: "Last day of the month."
+        data_tests:
+          - not_null
+          
+      - name: aar_maaned_nummer
+        description: "Concatenation of year and month number, e.g. 202301."
+        data_tests:
+          - not_null
+          
+      - name: maaned_aar_nummer
+        description: "Month and year label, e.g. 'Jan 2023'."
+        data_tests:
+          - not_null
+          
+      - name: dag_i_maaned_nummer
+        description: "Day of the month (1–31)."
+        data_tests:
+          - not_null
+          
+      - name: aar
+        description: "Year number (e.g. 2023)."
+        data_tests:
+          - not_null
+          
+      - name: ukedag_nummer
+        description: "Day of week number (1–7)."
+        data_tests:
+          - not_null
+          
+      - name: ukedag_navn
+        description: "Weekday (3-letter abbreviation or full name), possibly translated."
+        data_tests:
+          - not_null
+          
+      - name: uke_nummer
+        description: "Week-of-year number."
+        data_tests:
+          - not_null
+          
+      - name: uke_navn
+        description: "Label for the week, e.g. 'Uke 03'."
+        data_tests:
+          - not_null
+          
+      - name: aar_for_uke
+        description: "Year associated with the given week."
+        data_tests:
+          - not_null
+          
+      - name: aar_uke_nummer
+        description: "Concatenation of year for the week and week number, e.g. 202303."
+        data_tests:
+          - not_null
+          
+      - name: aar_kvartal_nummer
+        description: "Concatenation of year and quarter, e.g. 202301."
+        data_tests:
+          - not_null
+          
+      - name: uke_aar_navn
+        description: "Label combining 'Uke ', week number, and a 4-digit year suffix."
+        data_tests:
+          - not_null
+          
+      - name: aar_maaned_navn
+        description: "Label combining year and short month name, e.g. '2023 Jan'."
+        data_tests:
+          - not_null
+          
+      - name: maaned_aar_navn
+        description: "Label combining short month name and year, e.g. 'Jan 2023'."
+        data_tests:
+          - not_null
+          
+      - name: uke_start_dato
+        description: "Start date of the week."
+        data_tests:
+          - not_null
+          
+      - name: uke_slutt_dato
+        description: "End date of the week."
+        data_tests:
+          - not_null
+          
+      - name: er_arbeidsdag
+        description: "1 if it is a weekday (Mon–Fri), otherwise 0."
+        data_tests:
+          - not_null
+          
+      - name: kvartal_start_dato
+        description: "First date of the quarter."
+        data_tests:
+          - not_null
+          
+      - name: kvartal_slutt_dato
+        description: "Last date of the quarter."
+        data_tests:
+          - not_null
+          
+      - name: kvartal_navn
+        description: "Label for the quarter (e.g. '1. kvartal')."
+        data_tests:
+          - not_null
+          
+      - name: kvartal_aar_navn
+        description: "Label for quarter and year, e.g. '1. kvartal 2023'."
+        data_tests:
+          - not_null
+
+      - name: er_til_og_med_i_dag
+        description: "Indicates whether the date is on or before today's date (1 = yes, 0 = no)."
+        data_tests:
+          - not_null
+
+      - name: er_til_og_med_i_gaar
+        description: "Indicates whether the date is strictly before today's date (1 = yes, 0 = no)."
+        data_tests:
+          - not_null
+
+      - name: antall_passerte_dager
+        description: "The difference in days between the date and today. Positive if the date is in the past, negative if in the future, and zero if it is today."
+        data_tests:
+          - not_null
+
+      - name: antall_passerte_aar
+        description: "The difference in years between the date and the current year. Positive if the date is in the past, negative if in the future, and zero if it is the current year."
+        data_tests:
+          - not_null
+
+      - name: antall_passerte_maaneder
+        description: "The difference in whole months between the date and the current month. Positive if the date is in the past, negative if in the future."
+        data_tests:
+          - not_null
+
+      - name: antall_passerte_kvartal
+        description: "The difference in quarters between the date and the current quarter. Positive if the date is in the past, negative if in the future."
+        data_tests:
+          - not_null
+
+      - name: antall_passerte_uker
+        description: "The difference in full weeks between the date and the current week. Positive if the date is in the past, negative if in the future."
+        data_tests:
+          - not_null
+          
+      - name: dag_dynamisk
+        description: "Dynamic string for 'I dag', 'I gaar', 'I morgen', or date format, possibly translated."
+        data_tests:
+          - not_null
+          
+      - name: uke_dynamisk
+        description: "Dynamic string for 'Denne uke', 'Forrige uke', 'Neste uke', or generic 'Uke XX YY'."
+        data_tests:
+          - not_null
+          
+      - name: maaned_aar_dynamisk
+        description: "Dynamic string for 'Denne maaned', 'Forrige maaned', 'Neste maaned', or 'Mmm YYYY', possibly translated."
+        data_tests:
+          - not_null
+          
+      - name: aar_dynamisk
+        description: "Dynamic string for 'Dette aar', 'Forrige aar', 'Neste aar', or numeric year, possibly translated."
+        data_tests:
+          - not_null
+          
+sources:
+ - name: seeds
+   tables:
+     - name: seed_delte_dimensjoner__oversettelse
+       description: "Seed file containing translations for various fields."
